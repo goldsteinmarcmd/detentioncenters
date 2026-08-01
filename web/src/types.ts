@@ -42,6 +42,10 @@ export interface Demographics {
     median_posted: number | null;
     n_set: Count;
     n_posted: Count;
+    unique_people?: Count;
+    people_with_recorded_set?: Count;
+    person_median_set?: number | null;
+    person_recorded_set_share?: number | null;
   };
 }
 

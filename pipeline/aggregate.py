@@ -56,6 +56,7 @@ BASIS_COLUMN = {
 }
 
 COLUMNS = [
+    "unique_identifier",
     "detention_facility_code_first",
     "detention_facility_code_longest",
     "detention_facility_code_last",
@@ -93,6 +94,12 @@ def _counts(series: pd.Series, limit: int | None = None) -> dict:
     if limit:
         vc = vc.head(limit)
     return {str(k): _suppress(int(v)) for k, v in vc.items()}
+
+
+def _ratio(numerator: int, denominator: int) -> float | None:
+    if numerator < SUPPRESSION_THRESHOLD or denominator < SUPPRESSION_THRESHOLD:
+        return None
+    return round(numerator / denominator, 3)
 
 
 def load_stays(path: Path | None = None) -> tuple[pd.DataFrame, dict]:
@@ -152,6 +159,13 @@ def aggregate(df: pd.DataFrame, meta: dict, basis: str = "longest") -> dict:
         los = grp["los_days"].dropna()
         bond_set = grp["initial_bond_set_amount_lowest_seen"].dropna()
         bond_posted = grp["bond_posted_amount_lowest_seen"].dropna()
+        unique_people = grp["unique_identifier"].dropna().astype(str).nunique()
+        person_bond_set = (
+            grp.dropna(subset=["unique_identifier", "initial_bond_set_amount_lowest_seen"])
+            .groupby("unique_identifier")["initial_bond_set_amount_lowest_seen"]
+            .min()
+        )
+        people_with_bond_set = len(person_bond_set)
 
         out[str(code)] = {
             "stays_in_window": n,
@@ -177,6 +191,14 @@ def aggregate(df: pd.DataFrame, meta: dict, basis: str = "longest") -> dict:
                 "median_posted": round(float(bond_posted.median()), 2) if len(bond_posted) >= SUPPRESSION_THRESHOLD else None,
                 "n_set": _suppress(len(bond_set)),
                 "n_posted": _suppress(len(bond_posted)),
+                "unique_people": _suppress(unique_people),
+                "people_with_recorded_set": _suppress(people_with_bond_set),
+                "person_median_set": (
+                    round(float(person_bond_set.median()), 2)
+                    if people_with_bond_set >= SUPPRESSION_THRESHOLD
+                    else None
+                ),
+                "person_recorded_set_share": _ratio(people_with_bond_set, unique_people),
             },
         }
     return out

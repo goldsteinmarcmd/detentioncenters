@@ -22,6 +22,7 @@ import {
   money,
   NOT_REPORTED,
   num,
+  percent,
   ratingClass,
   text,
   titleCase,
@@ -283,16 +284,22 @@ function demographicsSection(p: FacilityProps): string {
 
       <h4>Bond</h4>
       ${dl([
-        ['Median initial bond recorded', money(d.bond.median_set)],
-        ['Stays included in that median', count(d.bond.n_set)],
-        ['Median amount posted', money(d.bond.median_posted)],
+        ['Median recorded initial bond per stay', money(d.bond.median_set)],
+        ['Stays with recorded initial bond', count(d.bond.n_set)],
+        ['Median recorded initial bond per person', money(d.bond.person_median_set)],
+        ['People with recorded initial bond', count(d.bond.people_with_recorded_set)],
+        ['Share of people with recorded initial bond', percent(d.bond.person_recorded_set_share)],
+        ['Median recorded amount posted', money(d.bond.median_posted)],
         ['Stays with a posted amount', count(d.bond.n_posted)],
       ])}
       <p class="note">
-        The median uses the lowest initial bond amount recorded for each detention stay.
-        A person can have more than one stay. Each stay is attributed here because this
-        was the facility where the person spent the most time; the bond may have been
-        set elsewhere. Individual bond records are not published by this map.
+        These figures only describe records where a bond amount appears in the source.
+        The stay-level median uses the lowest initial bond amount recorded for each
+        detention stay. The person-level median deduplicates people within this
+        facility and uses each person's lowest recorded initial bond in the window.
+        Stays are attributed here because this was the facility where the person spent
+        the most time; the bond may have been set elsewhere. Individual bond records
+        are not published by this map.
       </p>
       ${sourceNote('Demographic source', [p.sources.demographics])}
     </section>`;

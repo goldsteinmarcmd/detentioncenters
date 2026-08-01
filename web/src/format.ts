@@ -51,6 +51,14 @@ export function money(value: number | null | undefined): string {
   });
 }
 
+export function percent(value: number | null | undefined): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return NOT_REPORTED;
+  return value.toLocaleString('en-US', {
+    style: 'percent',
+    maximumFractionDigits: 1,
+  });
+}
+
 export function date(value: string | null | undefined): string {
   if (!value) return NOT_REPORTED;
   const d = new Date(`${value}T00:00:00Z`);
