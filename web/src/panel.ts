@@ -34,6 +34,7 @@ export function renderPanel(p: FacilityProps): string {
   return [
     header(p),
     directionsSection(p),
+    lodgingSection(p),
     populationSection(p),
     demographicsSection(p),
     operatorSection(p),
@@ -42,6 +43,38 @@ export function renderPanel(p: FacilityProps): string {
     notReportedSection(p),
     provenanceSection(p),
   ].join('');
+}
+
+function lodgingSection(p: FacilityProps): string {
+  if (p.location_precision !== 'exact') return '';
+
+  return `
+    <section class="lodging" data-code="${escapeHtml(p.code)}">
+      <h3>Stay nearby</h3>
+      <div class="lodging-dates">
+        <label>
+          <span>Check in</span>
+          <input class="lodging-checkin" type="date" />
+        </label>
+        <label>
+          <span>Check out</span>
+          <input class="lodging-checkout" type="date" />
+        </label>
+      </div>
+      <div class="lodging-actions">
+        <a class="btn lodging-go" data-provider="airbnb" target="_blank"
+           rel="noopener noreferrer" href="#">Airbnb</a>
+        <a class="btn ghost lodging-go" data-provider="booking" target="_blank"
+           rel="noopener noreferrer" href="#">Hotels</a>
+        <button class="btn ghost lodging-live" type="button" hidden>
+          Compare live hotel rates
+        </button>
+      </div>
+      <p class="lodging-status note" hidden></p>
+      <div class="lodging-results" hidden></div>
+      <p class="note">Availability and prices come from the selected lodging provider.
+      This map does not send a request until you open a search or request live rates.</p>
+    </section>`;
 }
 
 function header(p: FacilityProps): string {
@@ -250,10 +283,17 @@ function demographicsSection(p: FacilityProps): string {
 
       <h4>Bond</h4>
       ${dl([
-        ['Median bond set', money(d.bond.median_set)],
-        ['Stays with a bond set', count(d.bond.n_set)],
-        ['Stays with bond posted', count(d.bond.n_posted)],
+        ['Median initial bond recorded', money(d.bond.median_set)],
+        ['Stays included in that median', count(d.bond.n_set)],
+        ['Median amount posted', money(d.bond.median_posted)],
+        ['Stays with a posted amount', count(d.bond.n_posted)],
       ])}
+      <p class="note">
+        The median uses the lowest initial bond amount recorded for each detention stay.
+        A person can have more than one stay. Each stay is attributed here because this
+        was the facility where the person spent the most time; the bond may have been
+        set elsewhere. Individual bond records are not published by this map.
+      </p>
       ${sourceNote('Demographic source', [p.sources.demographics])}
     </section>`;
 }

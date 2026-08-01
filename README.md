@@ -43,6 +43,14 @@ Repository: <https://github.com/goldsteinmarcmd/detentioncenters>
 For a custom domain, create a repository Actions variable named `VITE_BASE_PATH` with
 the value `/`.
 
+## Nearby lodging
+
+Exact-location facilities include date-aware outbound searches for Airbnb and hotels.
+Airbnb does not provide open consumer-inventory API access, so it remains an outbound
+search. Live hotel results can be enabled through a server-side provider adapter by
+setting `VITE_LODGING_API_URL`; provider credentials must never be placed in a `VITE_*`
+variable. The adapter contract and provider options are in `docs/lodging-api.md`.
+
 ## Daily worker
 
 Use a dedicated clone so an automated refresh never encounters development edits.
@@ -83,3 +91,10 @@ launchctl kickstart -k gui/$(id -u)/io.github.goldsteinmarcmd.detentioncenters.r
 
 Source definitions, methodology, known limitations, and integrity rules are documented
 in `CLAUDE.md`.
+
+To reproduce a displayed bond median from the protected local source without printing
+person or stay identifiers:
+
+```bash
+.venv/bin/python -m pipeline.audit_bond OKDBACK
+```

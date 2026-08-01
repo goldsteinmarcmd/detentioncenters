@@ -34,15 +34,26 @@ import {
   setCachedOrigin,
   type Waypoint,
 } from './directions';
+import {
+  airbnbUrl,
+  bookingUrl,
+  defaultStayDates,
+  fetchNearbyLodging,
+  nextDate,
+  type LodgingResult,
+  type StayDates,
+} from './lodging';
 import type { FacilityCollection, FacilityProps, UnplacedFile } from './types';
 
 const DATA = `${import.meta.env.BASE_URL}data/facilities.geojson`;
 const UNPLACED = `${import.meta.env.BASE_URL}data/facilities-unplaced.json`;
+const LODGING_API = import.meta.env.VITE_LODGING_API_URL?.trim() ?? '';
 
 const byCode = new Map<string, FacilityProps>();
 const coordsByCode = new Map<string, [number, number]>();
 const unplacedCodes = new Set<string>();
 let tooltip: maplibregl.Popup | null = null;
+let lodgingRequest: AbortController | null = null;
 
 const el = {
   map: document.getElementById('map')!,
@@ -112,6 +123,7 @@ async function boot() {
   onClusterClick(map);
   wireInteractions();
   wireDirections();
+  wireLodging();
   applyFilters();
 
   const deepLink = new URLSearchParams(location.search).get('facility');
@@ -215,6 +227,7 @@ function select(code: string, opts: { zoom?: boolean } = {}) {
   const input = el.panel.querySelector<HTMLInputElement>('.dir-input');
   if (input && cached) input.value = cached.label;
   refreshDirections();
+  refreshLodging();
 }
 
 /** True when the user has flipped the route to start at the facility. */
@@ -341,7 +354,126 @@ function wireDirections() {
   });
 }
 
+function lodgingDates(section: HTMLElement): StayDates {
+  const checkin = section.querySelector<HTMLInputElement>('.lodging-checkin')!;
+  const checkout = section.querySelector<HTMLInputElement>('.lodging-checkout')!;
+  const defaults = defaultStayDates();
+  if (!checkin.value) checkin.value = defaults.checkin;
+  if (!checkout.value) checkout.value = defaults.checkout;
+  if (checkout.value <= checkin.value) checkout.value = nextDate(checkin.value);
+  checkout.min = nextDate(checkin.value);
+  return { checkin: checkin.value, checkout: checkout.value };
+}
+
+function lodgingDestination(facility: FacilityProps): string {
+  const place = [facility.city, facility.state].filter(Boolean).join(', ');
+  return facility.address || place || facility.name || facility.code;
+}
+
+function refreshLodging() {
+  const section = el.panel.querySelector<HTMLElement>('.lodging[data-code]');
+  if (!section) return;
+  const facility = byCode.get(section.dataset.code!);
+  if (!facility) return;
+
+  const dates = lodgingDates(section);
+  const destination = lodgingDestination(facility);
+  for (const link of section.querySelectorAll<HTMLAnchorElement>('.lodging-go')) {
+    link.href =
+      link.dataset.provider === 'airbnb'
+        ? airbnbUrl(destination, dates)
+        : bookingUrl(destination, dates);
+  }
+
+  const live = section.querySelector<HTMLButtonElement>('.lodging-live')!;
+  live.hidden = !LODGING_API;
+}
+
+function safeLodgingUrl(value: string): string | null {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+function lodgingResultRow(result: LodgingResult): string {
+  const url = safeLodgingUrl(result.url);
+  if (!url) return '';
+  const details = [
+    result.distance_miles != null ? `${result.distance_miles.toFixed(1)} mi` : null,
+    result.rating != null ? `Rating ${result.rating}` : null,
+    result.price ?? null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+  return `
+    <a class="lodging-result" href="${escapeHtml(url)}" target="_blank"
+       rel="noopener noreferrer">
+      <strong>${escapeHtml(result.name)}</strong>
+      ${details ? `<span>${escapeHtml(details)}</span>` : ''}
+    </a>`;
+}
+
+async function loadLiveLodging(section: HTMLElement) {
+  const code = section.dataset.code!;
+  const coords = coordsByCode.get(code);
+  if (!coords || !LODGING_API) return;
+
+  const status = section.querySelector<HTMLElement>('.lodging-status')!;
+  const results = section.querySelector<HTMLElement>('.lodging-results')!;
+  const button = section.querySelector<HTMLButtonElement>('.lodging-live')!;
+  const dates = lodgingDates(section);
+
+  lodgingRequest?.abort();
+  lodgingRequest = new AbortController();
+  button.disabled = true;
+  status.hidden = false;
+  status.textContent = 'Checking live hotel availability…';
+  results.hidden = true;
+
+  try {
+    const payload = await fetchNearbyLodging(
+      LODGING_API,
+      { lat: coords[1], lon: coords[0] },
+      dates,
+      lodgingRequest.signal,
+    );
+    const rows = payload.results.map(lodgingResultRow).filter(Boolean).join('');
+    results.innerHTML = rows || '<p class="absent">No available hotels were returned.</p>';
+    results.hidden = false;
+    status.textContent = payload.provider
+      ? `Live results from ${payload.provider}.`
+      : 'Live hotel results.';
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') return;
+    status.textContent =
+      err instanceof Error ? err.message : 'Could not load live hotel availability.';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function wireLodging() {
+  el.panel.addEventListener('change', (event) => {
+    const target = event.target as HTMLElement;
+    if (!target.matches('.lodging-checkin, .lodging-checkout')) return;
+    lodgingRequest?.abort();
+    const section = target.closest<HTMLElement>('.lodging');
+    section?.querySelector<HTMLElement>('.lodging-results')?.setAttribute('hidden', '');
+    refreshLodging();
+  });
+
+  el.panel.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.lodging-live');
+    const section = button?.closest<HTMLElement>('.lodging');
+    if (section) void loadLiveLodging(section);
+  });
+}
+
 function closePanel() {
+  lodgingRequest?.abort();
   el.panel.hidden = true;
   setSelected(map, null);
   const url = new URL(location.href);

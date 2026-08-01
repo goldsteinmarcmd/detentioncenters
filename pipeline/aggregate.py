@@ -174,6 +174,7 @@ def aggregate(df: pd.DataFrame, meta: dict, basis: str = "longest") -> dict:
             },
             "bond": {
                 "median_set": round(float(bond_set.median()), 2) if len(bond_set) >= SUPPRESSION_THRESHOLD else None,
+                "median_posted": round(float(bond_posted.median()), 2) if len(bond_posted) >= SUPPRESSION_THRESHOLD else None,
                 "n_set": _suppress(len(bond_set)),
                 "n_posted": _suppress(len(bond_posted)),
             },
@@ -193,6 +194,21 @@ def validate(aggregates: dict) -> None:
 
     for code, agg in aggregates.items():
         walk(agg, code)
+        bond = agg["bond"]
+        for median_field, count_field in (
+            ("median_set", "n_set"),
+            ("median_posted", "n_posted"),
+        ):
+            median = bond[median_field]
+            count = bond[count_field]
+            if median is not None and median < 0:
+                raise SystemExit(f"negative bond median at {code}.{median_field}: {median}")
+            if median is not None and (
+                not isinstance(count, int) or count < SUPPRESSION_THRESHOLD
+            ):
+                raise SystemExit(
+                    f"bond median without a publishable sample at {code}.{median_field}"
+                )
 
 
 def main() -> int:

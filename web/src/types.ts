@@ -39,6 +39,7 @@ export interface Demographics {
   };
   bond: {
     median_set: number | null;
+    median_posted: number | null;
     n_set: Count;
     n_posted: Count;
   };
