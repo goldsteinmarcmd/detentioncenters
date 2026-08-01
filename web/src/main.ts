@@ -43,10 +43,12 @@ import {
   type LodgingResult,
   type StayDates,
 } from './lodging';
+import { renderBondFund, type BondCampaignCollection } from './bond-fund';
 import type { FacilityCollection, FacilityProps, UnplacedFile } from './types';
 
 const DATA = `${import.meta.env.BASE_URL}data/facilities.geojson`;
 const UNPLACED = `${import.meta.env.BASE_URL}data/facilities-unplaced.json`;
+const BOND_CASES = `${import.meta.env.BASE_URL}data/bond-cases.json`;
 const LODGING_API = import.meta.env.VITE_LODGING_API_URL?.trim() ?? '';
 
 const byCode = new Map<string, FacilityProps>();
@@ -66,6 +68,10 @@ const el = {
   rating: document.getElementById('filter-rating') as HTMLSelectElement,
   exactOnly: document.getElementById('filter-approx') as HTMLInputElement,
   hover: document.getElementById('hover-card') as HTMLElement,
+  bondFund: document.getElementById('bond-fund-view') as HTMLElement,
+  bondFundContent: document.getElementById('bond-fund-content') as HTMLElement,
+  bondFundOpen: document.getElementById('bond-fund-open') as HTMLButtonElement,
+  bondFundClose: document.getElementById('bond-fund-close') as HTMLButtonElement,
 };
 
 const map = createMap(el.map);
@@ -90,10 +96,16 @@ const mapLoaded: Promise<void> = new Promise((resolve) => {
 });
 
 async function boot() {
-  const [collection, ungeo] = await Promise.all([
+  const [collection, ungeo, bondCases] = await Promise.all([
     fetch(DATA).then((r) => r.json() as Promise<FacilityCollection>),
     fetch(UNPLACED).then((r) => r.json() as Promise<UnplacedFile>),
+    fetch(BOND_CASES).then((r) => r.json() as Promise<BondCampaignCollection>),
   ]);
+
+  el.bondFundContent.innerHTML = renderBondFund(bondCases);
+  wireBondFund();
+  const params = new URLSearchParams(location.search);
+  if (params.get('view') === 'bond-fund') openBondFund(false);
 
   for (const f of collection.features) {
     byCode.set(f.properties.code, f.properties);
@@ -126,7 +138,7 @@ async function boot() {
   wireLodging();
   applyFilters();
 
-  const deepLink = new URLSearchParams(location.search).get('facility');
+  const deepLink = params.get('facility');
   if (deepLink && byCode.has(deepLink)) select(deepLink, { zoom: true });
 }
 
@@ -481,6 +493,40 @@ function closePanel() {
   history.replaceState(null, '', url);
 }
 
+function openBondFund(updateHistory = true) {
+  tooltip?.remove();
+  el.hover.hidden = true;
+  el.bondFund.hidden = false;
+  document.body.classList.add('show-bond-fund');
+  if (updateHistory) {
+    const url = new URL(location.href);
+    url.searchParams.set('view', 'bond-fund');
+    history.replaceState(null, '', url);
+  }
+  el.bondFundClose.focus();
+}
+
+function closeBondFund(updateHistory = true) {
+  el.bondFund.hidden = true;
+  document.body.classList.remove('show-bond-fund');
+  if (updateHistory) {
+    const url = new URL(location.href);
+    url.searchParams.delete('view');
+    history.replaceState(null, '', url);
+  }
+  el.bondFundOpen.focus();
+}
+
+function wireBondFund() {
+  el.bondFundOpen.addEventListener('click', () => openBondFund());
+  el.bondFundClose.addEventListener('click', () => closeBondFund());
+  window.addEventListener('popstate', () => {
+    const open = new URLSearchParams(location.search).get('view') === 'bond-fund';
+    el.bondFund.hidden = !open;
+    document.body.classList.toggle('show-bond-fund', open);
+  });
+}
+
 /**
  * The click tooltip.
  *
@@ -574,7 +620,9 @@ function wireInteractions() {
   }
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closePanel();
+    if (e.key !== 'Escape') return;
+    if (!el.bondFund.hidden) closeBondFund();
+    else closePanel();
   });
 }
 

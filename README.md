@@ -11,11 +11,36 @@ stays, downloaded spreadsheets, and intermediate rollups remain under
 `pipeline/data/raw/` and `pipeline/data/interim/`; both directories are ignored by Git.
 Demographic cells below five are suppressed before any file reaches the frontend.
 
+Anonymous bond campaigns are a separate, consent-based program. Confidential case
+records remain with the referring organization and never enter this repository. The
+tracked campaign export contains only fields intended for public display.
+
 The tracked public data consists of:
 
 - `web/public/data/facilities.geojson`
 - `web/public/data/facilities-unplaced.json`
 - `web/public/data/build-report.json`
+- `web/public/data/bond-cases.json`
+
+## Bond release fund
+
+The Bond release fund view publishes anonymous, case-specific fundraising campaigns.
+It does not use the historical detention-stays file to identify people. Each campaign
+must be referred and verified by an organization responsible for the case.
+
+To publish a campaign, add one row to
+`pipeline/data/manual/bond_campaigns.csv`, then run:
+
+```bash
+.venv/bin/python -m pipeline.bond_campaigns
+npm --prefix web run build
+```
+
+The builder refuses campaigns without recorded consent, an approved non-binary booking
+category, current verification dates, a named contribution recipient, and HTTPS links
+for both checkout and fund terms. If verification expires, the campaign remains visible
+but its contribution link is removed automatically. See
+`docs/bond-fund-operations.md` for the case workflow and field definitions.
 
 ## Local development
 

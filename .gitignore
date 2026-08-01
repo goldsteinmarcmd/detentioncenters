@@ -4,8 +4,12 @@ pipeline/data/raw/
 # Intermediate rollups. Regenerate with `python -m pipeline.aggregate`.
 pipeline/data/interim/
 
-# The aggregate files in web/public/data are deliberately tracked. They are the only
-# data GitHub Pages receives; raw and individual-level records stay ignored above.
+# Confidential case records never belong in Git. The bond-campaign CSV under manual/
+# is a separate, intentionally public export with no identity fields.
+pipeline/data/private/
+
+# The public files in web/public/data are deliberately tracked. They are the only data
+# GitHub Pages receives; raw, confidential, and individual-level records stay ignored.
 web/public/data/facilities-ungeocoded.json
 
 # Source files dropped in the project root during exploration.

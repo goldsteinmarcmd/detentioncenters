@@ -32,6 +32,7 @@ PUBLIC_FILES = (
     "facilities.geojson",
     "facilities-unplaced.json",
     "build-report.json",
+    "bond-cases.json",
 )
 
 
@@ -213,6 +214,7 @@ def refresh(*, publish: bool, force: bool, skip_fetch: bool, skip_stays: bool) -
             env = os.environ.copy()
             env["DETENTION_MAP_OUT_DIR"] = str(staged_data)
             _run([sys.executable, "-m", "pipeline.build"], env=env)
+            _run([sys.executable, "-m", "pipeline.bond_campaigns"], env=env)
 
             validate_env = env.copy()
             validate_env["DETENTION_MAP_GEOJSON"] = str(

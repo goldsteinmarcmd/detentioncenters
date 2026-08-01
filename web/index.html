@@ -15,6 +15,9 @@
         <header>
           <h1>US Immigration Detention</h1>
           <p class="sub" id="summary">Loading…</p>
+          <button id="bond-fund-open" class="bond-fund-open" type="button">
+            Bond release fund
+          </button>
         </header>
 
         <div class="controls">
@@ -57,6 +60,36 @@
       </main>
 
       <section id="panel" hidden aria-live="polite"></section>
+
+      <section id="bond-fund-view" hidden aria-labelledby="bond-fund-title">
+        <header class="bond-fund-header">
+          <div class="bond-fund-header-inner">
+            <button id="bond-fund-close" type="button" aria-label="Back to facility map">
+              &larr;
+            </button>
+            <div>
+              <p class="bond-fund-kicker">Bond release fund</p>
+              <h2 id="bond-fund-title">Help pay a verified immigration bond</h2>
+              <p>Cases are anonymous, consented, and re-verified before contributions open.</p>
+            </div>
+          </div>
+        </header>
+        <div class="bond-fund-body">
+          <div id="bond-fund-content" class="bond-fund-content" aria-live="polite">
+            Loading bond cases…
+          </div>
+          <aside class="bond-fund-policy">
+            <h3>What the classification means</h3>
+            <p>Cases use the category reported in the booking record reviewed by the
+               referring partner: conviction reported, pending charge reported,
+               immigration-only, or not reported. A pending charge is not a conviction.</p>
+            <h3>Confidentiality</h3>
+            <p>Names, A-Numbers, birth dates, contact details, and case documents are not
+               published. Contributions go to the organization named on each case, not
+               directly to the person in detention.</p>
+          </aside>
+        </div>
+      </section>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

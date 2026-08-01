@@ -53,6 +53,22 @@ body {
 
 .sub { margin: 0; font-size: 12px; color: var(--muted); }
 
+.bond-fund-open {
+  width: 100%;
+  margin-top: 12px;
+  padding: 7px 10px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: #236748;
+  border: 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.bond-fund-open:hover { background: #19563a; }
+
 .controls {
   padding: 12px 16px;
   border-bottom: 1px solid var(--line);
@@ -632,10 +648,268 @@ body {
 .provenance .fields { max-width: 130px; word-break: break-word; color: var(--muted); }
 .provenance .asof { white-space: nowrap; font-variant-numeric: tabular-nums; }
 
+/* ---------- bond release fund ---------- */
+
+#bond-fund-view {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow-y: auto;
+  color: var(--ink);
+  background: #f5f7f5;
+}
+
+body.show-bond-fund { overflow: hidden; }
+
+.bond-fund-header {
+  color: #fff;
+  background: #173f32;
+  border-bottom: 4px solid #d0a935;
+}
+
+.bond-fund-header-inner {
+  display: flex;
+  gap: 18px;
+  width: min(1060px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 30px 0 34px;
+}
+
+#bond-fund-close {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font: inherit;
+  font-size: 22px;
+  line-height: 1;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+#bond-fund-close:hover { background: rgba(255, 255, 255, 0.1); }
+
+.bond-fund-kicker {
+  margin: 0 0 5px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #efd876;
+}
+
+.bond-fund-header h2 {
+  margin: 0;
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.bond-fund-header p:last-child {
+  margin: 8px 0 0;
+  color: #d4e3dc;
+}
+
+.bond-fund-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 28px;
+  width: min(1060px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 28px 0 48px;
+}
+
+.bond-fund-content {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-content: start;
+}
+
+.bond-fund-content > div:not(.bond-case-grid):not(.bond-empty) {
+  min-width: 0;
+  padding: 11px 13px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.bond-fund-content > div:not(.bond-case-grid):not(.bond-empty) strong,
+.bond-fund-content > div:not(.bond-case-grid):not(.bond-empty) span {
+  display: block;
+}
+
+.bond-fund-content > div:not(.bond-case-grid):not(.bond-empty) strong {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bond-fund-content > div:not(.bond-case-grid):not(.bond-empty) span {
+  margin-top: 2px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.bond-case-grid {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.bond-case {
+  min-width: 0;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-top: 3px solid #236748;
+  border-radius: var(--radius);
+}
+
+.bond-case-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bond-case-id {
+  margin: 0 0 2px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.bond-case h3 { margin: 0; font-size: 15px; }
+
+.bond-status {
+  flex: none;
+  max-width: 145px;
+  padding: 3px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  color: #225c42;
+  background: #e4f1ea;
+  border-radius: 4px;
+}
+
+.bond-status.funded,
+.bond-status.bond_posted,
+.bond-status.released { color: #30506b; background: #e7eef4; }
+.bond-status.paused,
+.bond-status.verification_expired { color: #76551b; background: #f7efd8; }
+
+.bond-story { margin: 14px 0; font-size: 13px; color: #444b54; }
+
+.bond-amounts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 16px 0 8px;
+}
+
+.bond-amounts div { min-width: 0; }
+.bond-amounts dt { font-size: 10px; color: var(--muted); }
+.bond-amounts dd {
+  margin: 1px 0 0;
+  font-size: 15px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.bond-progress {
+  height: 7px;
+  overflow: hidden;
+  background: #e7ebe8;
+  border-radius: 4px;
+}
+
+.bond-progress span { display: block; height: 100%; background: #2d815c; }
+
+.bond-classification {
+  margin-top: 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.bond-classification span { display: block; font-size: 10px; color: var(--muted); }
+.bond-classification strong { display: block; margin-top: 2px; font-size: 12.5px; }
+.bond-classification p { margin: 3px 0 0; font-size: 11px; color: var(--muted); }
+
+.bond-verified,
+.bond-recipient { margin: 10px 0 0; font-size: 10.5px; color: var(--muted); }
+
+.bond-case-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.bond-contribute {
+  display: inline-block;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  color: #fff;
+  text-decoration: none;
+  background: #236748;
+  border: 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.bond-contribute:hover:not(:disabled) { background: #19563a; }
+.bond-contribute:disabled { color: #747b75; background: #e4e7e4; cursor: not-allowed; }
+.bond-terms { font-size: 11px; color: var(--accent); }
+
+.bond-empty {
+  grid-column: 1 / -1;
+  padding: 42px 24px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.bond-empty h3 { margin: 0; font-size: 16px; }
+.bond-empty p { max-width: 560px; margin: 7px auto 0; color: var(--muted); }
+
+.bond-fund-policy {
+  align-self: start;
+  padding-left: 22px;
+  border-left: 1px solid #d8ddd9;
+}
+
+.bond-fund-policy h3 { margin: 0 0 6px; font-size: 12px; }
+.bond-fund-policy h3:not(:first-child) { margin-top: 22px; }
+.bond-fund-policy p { margin: 0; font-size: 11.5px; color: var(--muted); }
+
 /* ---------- responsive ---------- */
 
 @media (max-width: 860px) {
   #app { grid-template-columns: 1fr; grid-template-rows: 46% 54%; }
   #sidebar { border-right: 0; border-bottom: 1px solid var(--line); }
   #panel { width: 100%; }
+  .bond-fund-header-inner,
+  .bond-fund-body { width: min(100% - 28px, 680px); }
+  .bond-fund-body { grid-template-columns: 1fr; }
+  .bond-fund-policy { padding: 20px 0 0; border-top: 1px solid #d8ddd9; border-left: 0; }
+}
+
+@media (max-width: 620px) {
+  .bond-fund-header-inner { gap: 12px; padding: 20px 0 24px; }
+  .bond-fund-header h2 { font-size: 21px; }
+  .bond-fund-content { grid-template-columns: 1fr; }
+  .bond-fund-content > div:not(.bond-case-grid):not(.bond-empty) { grid-column: 1; }
+  .bond-case-grid { grid-template-columns: 1fr; }
+  .bond-amounts { gap: 5px; }
+  .bond-amounts dd { font-size: 13px; }
 }
