@@ -75,6 +75,17 @@ Airbnb does not provide open consumer-inventory API access, so it remains an out
 search. Live hotel results can be enabled through a server-side provider adapter by
 setting `VITE_LODGING_API_URL`; provider credentials must never be placed in a `VITE_*`
 variable. The adapter contract and provider options are in `docs/lodging-api.md`.
+Booking.com, Airbnb, and Expedia affiliate attribution can be enabled with approved
+program identifiers. The site discloses affiliate links and records consented outbound
+clicks; commissions are determined by each provider after a qualifying completed stay.
+
+## Analytics
+
+The map uses the shared first-party analytics collector in the satellite project's
+`analyticsplatform/` folder. With visitor consent it records page views, sessions,
+engagement, facility views, bond-fund views, and clicks. The shared private dashboard
+can report this project, Overhead, or all registered projects. Search text, raw IP
+addresses, precise browser location, and detainee information are not stored.
 
 ## Daily worker
 
@@ -96,7 +107,7 @@ order:
 3. Build the public files in a staging directory.
 4. Run strict source-fidelity and privacy checks against the staged output.
 5. Build the production frontend against the staged data.
-6. Promote, commit, and push only the three aggregate public files.
+6. Promote, commit, and push only the validated public data files.
 
 If any step fails, no commit is made and the last successful Pages deployment remains
 live. Logs are written to `~/Library/Logs/detentioncenters/`.

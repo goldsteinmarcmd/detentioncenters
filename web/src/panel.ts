@@ -64,9 +64,11 @@ function lodgingSection(p: FacilityProps): string {
       </div>
       <div class="lodging-actions">
         <a class="btn lodging-go" data-provider="airbnb" target="_blank"
-           rel="noopener noreferrer" href="#">Airbnb</a>
+           rel="noopener noreferrer sponsored" href="#">Airbnb</a>
         <a class="btn ghost lodging-go" data-provider="booking" target="_blank"
-           rel="noopener noreferrer" href="#">Hotels</a>
+           rel="noopener noreferrer sponsored" href="#">Booking.com</a>
+        <a class="btn ghost lodging-go" data-provider="expedia" target="_blank"
+           rel="noopener noreferrer sponsored" href="#">Expedia</a>
         <button class="btn ghost lodging-live" type="button" hidden>
           Compare live hotel rates
         </button>
@@ -75,6 +77,8 @@ function lodgingSection(p: FacilityProps): string {
       <div class="lodging-results" hidden></div>
       <p class="note">Availability and prices come from the selected lodging provider.
       This map does not send a request until you open a search or request live rates.</p>
+      <p class="note affiliate-disclosure" hidden>Some lodging links are affiliate links.
+      Commissions received support the bond release fund at no extra cost to you.</p>
     </section>`;
 }
 

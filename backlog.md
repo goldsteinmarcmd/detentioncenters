@@ -59,6 +59,13 @@ paying the map-in-a-sandbox cost.
 
 ## Data expansion
 
+- **Current detainee referral roster for bond campaigns.** The public DDP stays source
+  is anonymized and delayed, while ICE's current Detainee Locator requires a known name
+  or A-Number and does not expose a bulk roster or current bond amount. Build a private,
+  consent-based intake from detainees, families, attorneys, and legal-service partners;
+  verify current custody and bond with ICE/ERO; then publish only the anonymous campaign
+  record. Do not infer current detention from an open historical stay or infer offense
+  severity from ICE's broad book-in criminality category.
 - **Deaths in custody.** ICE publishes detainee death reports separately. High-value,
   sensitive — needs careful presentation and its own source verification.
 - **ODO / OIG inspection reports.** The FY26 spreadsheet gives a rating and a date; the

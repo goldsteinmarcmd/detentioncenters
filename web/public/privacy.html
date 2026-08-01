@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy - US Immigration Detention</title>
+    <style>
+      :root { font-family: ui-sans-serif, -apple-system, "Segoe UI", sans-serif; color: #1b1b1f; }
+      body { margin: 0; background: #f7f7f5; font-size: 15px; line-height: 1.55; }
+      main { width: min(680px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 64px; }
+      a { color: #3d6a8f; }
+      h1 { margin: 16px 0 4px; font-size: 26px; }
+      h2 { margin: 28px 0 6px; font-size: 16px; }
+      p, li { color: #58616e; }
+      button { padding: 7px 11px; font: inherit; color: #fff; background: #3d6a8f; border: 0; border-radius: 8px; cursor: pointer; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a href="./">&larr; Facility map</a>
+      <h1>Privacy</h1>
+      <p>Last updated: August 1, 2026</p>
+
+      <h2>Public detention data</h2>
+      <p>The map publishes facility-level aggregates. It does not publish detainee names,
+         A-Numbers, birth dates, contact information, or confidential bond records.</p>
+
+      <h2>Optional analytics</h2>
+      <p>Analytics run only after you select Accept. We then count page views, clicks,
+         sessions, approximate device type, country derived from an IP address in memory,
+         referrer, and campaign parameters. Raw IP addresses, search text, precise
+         location, and detainee information are not stored.</p>
+      <p>A random browser identifier is stored locally to calculate unique and total use.
+         Declining sends no analytics and stores only your choice.</p>
+
+      <h2>Affiliate lodging links</h2>
+      <p>Some lodging links may contain affiliate attribution. If a qualifying reservation
+         is completed, the provider may pay a commission intended for the bond release
+         fund at no additional cost to the traveler. The lodging provider handles the
+         reservation and its own tracking.</p>
+
+      <h2>Your choice</h2>
+      <p><button id="withdraw" type="button">Withdraw analytics consent</button></p>
+    </main>
+    <script>
+      document.getElementById('withdraw').addEventListener('click', () => {
+        try {
+          localStorage.setItem('analytics_detentioncenters_consent', 'denied');
+          localStorage.removeItem('analytics_detentioncenters_cid');
+          localStorage.removeItem('analytics_detentioncenters_sid');
+          localStorage.removeItem('analytics_detentioncenters_sid_ts');
+        } catch {}
+        alert('Analytics consent withdrawn for this site.');
+      });
+    </script>
+  </body>
+</html>

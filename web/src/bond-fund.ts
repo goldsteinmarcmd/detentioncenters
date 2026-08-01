@@ -117,7 +117,8 @@ function campaignCard(item: BondCampaign): string {
         ${
           canContribute
             ? `<a class="bond-contribute" href="${escapeHtml(contributionUrl)}"
-                 target="_blank" rel="noopener noreferrer">Contribute toward bond</a>`
+                 data-analytics-label="bond-contribution" target="_blank"
+                 rel="noopener noreferrer">Contribute toward bond</a>`
             : `<button class="bond-contribute" type="button" disabled>Contributions unavailable</button>`
         }
         ${

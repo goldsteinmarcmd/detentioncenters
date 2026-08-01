@@ -39,17 +39,27 @@ import {
   bookingUrl,
   defaultStayDates,
   fetchNearbyLodging,
+  expediaUrl,
   nextDate,
   type LodgingResult,
   type StayDates,
 } from './lodging';
 import { renderBondFund, type BondCampaignCollection } from './bond-fund';
+import { initAnalytics, track } from './analytics';
 import type { FacilityCollection, FacilityProps, UnplacedFile } from './types';
 
 const DATA = `${import.meta.env.BASE_URL}data/facilities.geojson`;
 const UNPLACED = `${import.meta.env.BASE_URL}data/facilities-unplaced.json`;
 const BOND_CASES = `${import.meta.env.BASE_URL}data/bond-cases.json`;
 const LODGING_API = import.meta.env.VITE_LODGING_API_URL?.trim() ?? '';
+const BOOKING_AFFILIATE_ID = import.meta.env.VITE_BOOKING_AFFILIATE_ID?.trim() ?? '';
+const AIRBNB_AFFILIATE_TEMPLATE =
+  import.meta.env.VITE_AIRBNB_AFFILIATE_TEMPLATE?.trim() ?? '';
+const EXPEDIA_AFFILIATE_TEMPLATE =
+  import.meta.env.VITE_EXPEDIA_AFFILIATE_TEMPLATE?.trim() ?? '';
+const ANALYTICS_COLLECT_URL =
+  import.meta.env.VITE_ANALYTICS_COLLECT_URL?.trim() ||
+  'https://overhead-analytics-xytglqjhja-ew.a.run.app';
 
 const byCode = new Map<string, FacilityProps>();
 const coordsByCode = new Map<string, [number, number]>();
@@ -75,6 +85,10 @@ const el = {
 };
 
 const map = createMap(el.map);
+initAnalytics({
+  collectUrl: ANALYTICS_COLLECT_URL,
+  privacyUrl: `${import.meta.env.BASE_URL}privacy.html`,
+});
 map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 map.addControl(
   new maplibregl.GeolocateControl({ trackUserLocation: false }),
@@ -240,6 +254,7 @@ function select(code: string, opts: { zoom?: boolean } = {}) {
   if (input && cached) input.value = cached.label;
   refreshDirections();
   refreshLodging();
+  track('facility_view', { facility_code: code });
 }
 
 /** True when the user has flipped the route to start at the facility. */
@@ -391,11 +406,19 @@ function refreshLodging() {
   const dates = lodgingDates(section);
   const destination = lodgingDestination(facility);
   for (const link of section.querySelectorAll<HTMLAnchorElement>('.lodging-go')) {
-    link.href =
-      link.dataset.provider === 'airbnb'
-        ? airbnbUrl(destination, dates)
-        : bookingUrl(destination, dates);
+    if (link.dataset.provider === 'airbnb') {
+      link.href = airbnbUrl(destination, dates, AIRBNB_AFFILIATE_TEMPLATE);
+    } else if (link.dataset.provider === 'expedia') {
+      link.href = expediaUrl(destination, dates, EXPEDIA_AFFILIATE_TEMPLATE);
+    } else {
+      link.href = bookingUrl(destination, dates, BOOKING_AFFILIATE_ID);
+    }
   }
+
+  const hasAffiliate = Boolean(
+    BOOKING_AFFILIATE_ID || AIRBNB_AFFILIATE_TEMPLATE || EXPEDIA_AFFILIATE_TEMPLATE,
+  );
+  section.querySelector<HTMLElement>('.affiliate-disclosure')!.hidden = !hasAffiliate;
 
   const live = section.querySelector<HTMLButtonElement>('.lodging-live')!;
   live.hidden = !LODGING_API;
@@ -478,7 +501,16 @@ function wireLodging() {
   });
 
   el.panel.addEventListener('click', (event) => {
-    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.lodging-live');
+    const target = event.target as HTMLElement;
+    const link = target.closest<HTMLAnchorElement>('.lodging-go');
+    if (link) {
+      const section = link.closest<HTMLElement>('.lodging');
+      track('lodging_click', {
+        provider: link.dataset.provider ?? 'unknown',
+        facility_code: section?.dataset.code ?? 'unknown',
+      });
+    }
+    const button = target.closest<HTMLButtonElement>('.lodging-live');
     const section = button?.closest<HTMLElement>('.lodging');
     if (section) void loadLiveLodging(section);
   });
@@ -504,6 +536,7 @@ function openBondFund(updateHistory = true) {
     history.replaceState(null, '', url);
   }
   el.bondFundClose.focus();
+  track('bond_fund_view');
 }
 
 function closeBondFund(updateHistory = true) {

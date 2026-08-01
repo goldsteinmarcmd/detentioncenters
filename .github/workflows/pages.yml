@@ -43,6 +43,11 @@ jobs:
         working-directory: web
         env:
           VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH }}
+          VITE_LODGING_API_URL: ${{ vars.VITE_LODGING_API_URL }}
+          VITE_BOOKING_AFFILIATE_ID: ${{ vars.VITE_BOOKING_AFFILIATE_ID }}
+          VITE_AIRBNB_AFFILIATE_TEMPLATE: ${{ vars.VITE_AIRBNB_AFFILIATE_TEMPLATE }}
+          VITE_EXPEDIA_AFFILIATE_TEMPLATE: ${{ vars.VITE_EXPEDIA_AFFILIATE_TEMPLATE }}
+          VITE_ANALYTICS_COLLECT_URL: ${{ vars.VITE_ANALYTICS_COLLECT_URL }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
