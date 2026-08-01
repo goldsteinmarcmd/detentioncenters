@@ -1,0 +1,13 @@
+name,state,latitude,longitude,precision,matched_to,evidence
+Agana INS,GU,13.4745,144.7504,manual_city_centroid,"Hagatna, GU","Agana is the former name of Hagatna, capital of Guam. US territories are absent from the Census place national gazetteer."
+Charlotte Amalie Hold Room,VI,18.3419,-64.9307,manual_city_centroid,"Charlotte Amalie, VI","Capital of the US Virgin Islands, on St Thomas. Absent from the Census place national gazetteer."
+Saipain Hold,MP,15.1900,145.7500,manual_city_centroid,"Saipan, MP","Saipan, Northern Mariana Islands; the source misspells it 'Saipain'. Absent from the Census place national gazetteer."
+Migrant Operations Center East,CU,19.9021,-75.0967,manual_facility_area,Guantanamo Bay Naval Station,"Guantanamo Bay, Cuba. Outside any US gazetteer; DDP assigns these facilities the state code CU. Placed at the naval station."
+Windward Holding Facility,CU,19.9060,-75.0900,manual_facility_area,Guantanamo Bay Naval Station,"Guantanamo Bay, Cuba, windward side. Outside any US gazetteer."
+Bakerfield Hold,CA,35.3733,-119.0187,manual_city_centroid,"Bakersfield, CA","Source misspells Bakersfield. Corrected to the Census place of that name rather than fuzzy-matched automatically."
+Krome Hold Room,FL,25.7683,-80.4939,manual_facility_area,"Krome SPC, Miami-Dade, FL","'Krome' is a facility name, not a place; refers to the Krome North Service Processing Center in western Miami-Dade County."
+Mount Laurel Hold Room,NJ,39.9340,-74.8918,manual_city_centroid,"Mount Laurel Township, NJ","New Jersey townships are minor civil divisions and do not appear in the Census *place* file, so this cannot resolve automatically."
+Etowah Enforcement and Removal Operations Hold Room,AL,34.0143,-86.0066,manual_county_seat,"Gadsden, Etowah County, AL","Refers to the Etowah County facility in Gadsden. The name carries the county without the word 'County', so the county fallback is deliberately not triggered."
+Hel District Custody,MT,46.5891,-112.0391,manual_office_code,"Helena, MT","'HEL' is the ICE office code for Helena, Montana. Inferred from the code, not from a published address."
+Phi District Office,PA,39.9526,-75.1652,manual_office_code,"Philadelphia, PA","'PHI' is the ICE office code for the Philadelphia field office. Inferred from the code, not from a published address."
+Sfr Hold Room,CA,37.7749,-122.4194,manual_office_code,"San Francisco, CA","'SFR' is the ICE office code for the San Francisco field office. Inferred from the code, not from a published address."

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>US Immigration Detention Facilities</title>
+    <meta
+      name="description"
+      content="Every US immigration detention facility, with population, operator, inspection history, and who is held there — each figure carrying its source and date."
+    />
+  </head>
+  <body>
+    <div id="app">
+      <aside id="sidebar">
+        <header>
+          <h1>US Immigration Detention</h1>
+          <p class="sub" id="summary">Loading…</p>
+        </header>
+
+        <div class="controls">
+          <input
+            id="search"
+            type="search"
+            placeholder="Search name, city, or county…"
+            autocomplete="off"
+          />
+          <div class="filter-row">
+            <select id="filter-state"><option value="">All states</option></select>
+            <select id="filter-contract"><option value="">All contract types</option></select>
+          </div>
+          <div class="filter-row">
+            <select id="filter-rating">
+              <option value="">Any inspection result</option>
+              <option value="Fail">Failed last inspection</option>
+              <option value="Pass">Passed last inspection</option>
+              <option value="__none">No inspection published</option>
+            </select>
+            <label class="check" title="Hide facilities placed at a city or county centroid because no address is published">
+              <input type="checkbox" id="filter-approx" />
+              <span>Exact locations only</span>
+            </label>
+          </div>
+        </div>
+
+        <div id="results"></div>
+      </aside>
+
+      <main id="map-wrap">
+        <div id="map"></div>
+        <div id="hover-card" hidden></div>
+        <div id="legend">
+          <span class="dot pass"></span> Pass
+          <span class="dot fail"></span> Fail
+          <span class="dot none"></span> No inspection published
+          <span class="dot hollow"></span> Approximate location
+        </div>
+      </main>
+
+      <section id="panel" hidden aria-live="polite"></section>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

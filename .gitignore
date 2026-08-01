@@ -1,0 +1,23 @@
+# Cached upstream downloads — re-fetchable, and the stays file is 110 MB.
+pipeline/data/raw/
+
+# Intermediate rollups. Regenerate with `python -m pipeline.aggregate`.
+pipeline/data/interim/
+
+# The aggregate files in web/public/data are deliberately tracked. They are the only
+# data GitHub Pages receives; raw and individual-level records stay ignored above.
+web/public/data/facilities-ungeocoded.json
+
+# Source files dropped in the project root during exploration.
+/facilities-latest-sf.parquet
+/facilities-latest-shp.zip
+
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+dist/
+.DS_Store
+
+# Local scheduler state and logs.
+*.log
