@@ -7,11 +7,11 @@ mechanical once the GeoJSON is correct.
 Background, sources, and the integrity rules that constrain all of this are in
 [CLAUDE.md](CLAUDE.md). Deferred work is in [backlog.md](backlog.md).
 
-## Status — 2026-07-29
+## Status — 2026-08-01
 
 | Phase | State |
 |---|---|
-| 0 — Scaffold | done except `git init` |
+| 0 — Scaffold | **done** |
 | 1 — Sources | **done for 3 of 4** — DDP facilities, ICE xlsx, stays file |
 | 2 — Crosswalk | **done, 208/208 (100%)**, both assertions passing |
 | 3 — Aggregation | **done** — 400,223 stays → 481 facilities, suppression enforced |
@@ -20,7 +20,7 @@ Background, sources, and the integrity rules that constrain all of this are in
 | 6 — Map | **done** — clusters, click tooltip → panel, deep links, verified |
 | 6b — Directions | **done** — both directions, geolocation or typed origin, 3 providers |
 | 7 — Search, filters, honesty UI | mostly done; About page outstanding |
-| 8 — Ship + keep fresh | not started |
+| 8 — Ship + keep fresh | **done locally** — publish and worker installation pending GitHub authorization |
 
 ```bash
 python -m pipeline.aggregate && python -m pipeline.build
@@ -203,14 +203,19 @@ which matters directly for the Reddit port.
 
 ## Phase 8 — Ship + keep fresh
 
-- Deploy static to Cloudflare Pages or GitHub Pages.
-- GitHub Actions weekly cron: re-run pipeline, run validations, commit data only if
-  validations pass, redeploy. A failed validation opens an issue instead of publishing.
-- Track ICE release dates so the site can show "ICE data as of <date>" rather than
-  implying real-time.
+- Deploy the static build to GitHub Pages with the official Pages Actions.
+- Run `pipeline.refresh --publish` daily from a dedicated worker clone via a macOS
+  LaunchAgent. It fetches official sources, skips unchanged fingerprints, stages the
+  aggregate outputs, runs strict source-fidelity and privacy validation, and promotes
+  and pushes only after the whole build passes.
+- Track source URLs, retrieval times, checksums, publication dates, and upstream
+  versions in the local source manifest. Display source names and as-of dates at the
+  bottom of the relevant population and demographics sections.
+- Keep the individual-level stays file ignored and local. Only the three validated
+  facility-level aggregate files may be committed by the publisher.
 
-**Done when:** data refreshes weekly with no manual step, and a bad upstream release
-blocks publication rather than corrupting the map.
+**Done when:** data refreshes daily with no manual step, a bad upstream release blocks
+publication, and a successful aggregate commit automatically deploys to GitHub Pages.
 
 ---
 

@@ -251,8 +251,10 @@ These are the point of the project. Do not relax them for UI convenience.
   style-config change rather than a rewrite — which matters for the Reddit/Devvit port,
   where external domains must be allowlisted.
 - **Basemap:** free raster tiles to start; Protomaps pmtiles when Devvit needs it.
-- **Hosting:** static (Cloudflare Pages / GitHub Pages), refreshed by a GitHub Actions
-  cron. ICE publishes roughly biweekly, so weekly is enough.
+- **Hosting:** GitHub Pages, deployed by `.github/workflows/pages.yml` whenever `main`
+  changes. A dedicated worker clone runs `pipeline.refresh --publish` daily through a
+  macOS LaunchAgent; strict validation and an atomic staging build must pass before the
+  three public aggregate files can be committed and pushed.
 
 ## Layout
 
