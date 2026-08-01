@@ -7,10 +7,16 @@
   <key>ProgramArguments</key>
   <array>
     <string>/bin/zsh</string>
-    <string>__REPO_DIR__/scripts/refresh-and-publish.sh</string>
+    <string>-lc</string>
+    <string>cd "__REPO_DIR__" &amp;&amp; exec .venv/bin/python -m pipeline.refresh --publish</string>
   </array>
   <key>WorkingDirectory</key>
   <string>__REPO_DIR__</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+  </dict>
   <key>RunAtLoad</key>
   <true/>
   <key>StartCalendarInterval</key>
