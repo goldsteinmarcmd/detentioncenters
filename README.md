@@ -36,6 +36,10 @@ GitHub Pages deploys `web/dist` through `.github/workflows/pages.yml` whenever `
 changes. The Vite base path is derived from `GITHUB_REPOSITORY`, so a normal project
 URL such as `https://OWNER.github.io/REPOSITORY/` works automatically.
 
+Live site: <https://goldsteinmarcmd.github.io/detentioncenters/>
+
+Repository: <https://github.com/goldsteinmarcmd/detentioncenters>
+
 For a custom domain, create a repository Actions variable named `VITE_BASE_PATH` with
 the value `/`.
 
@@ -44,7 +48,7 @@ the value `/`.
 Use a dedicated clone so an automated refresh never encounters development edits.
 
 ```bash
-git clone git@github.com:OWNER/REPOSITORY.git /absolute/path/to/detentioncenters-worker
+git clone https://github.com/goldsteinmarcmd/detentioncenters.git /absolute/path/to/detentioncenters-worker
 cd /absolute/path/to/detentioncenters-worker
 scripts/bootstrap-worker.sh
 .venv/bin/python ops/install_launch_agent.py "$PWD"

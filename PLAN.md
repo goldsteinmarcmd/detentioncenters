@@ -20,7 +20,7 @@ Background, sources, and the integrity rules that constrain all of this are in
 | 6 — Map | **done** — clusters, click tooltip → panel, deep links, verified |
 | 6b — Directions | **done** — both directions, geolocation or typed origin, 3 providers |
 | 7 — Search, filters, honesty UI | mostly done; About page outstanding |
-| 8 — Ship + keep fresh | **done locally** — publish and worker installation pending GitHub authorization |
+| 8 — Ship + keep fresh | **done** — public GitHub Pages deployment and daily worker active |
 
 ```bash
 python -m pipeline.aggregate && python -m pipeline.build
@@ -202,6 +202,11 @@ which matters directly for the Reddit port.
 ---
 
 ## Phase 8 — Ship + keep fresh
+
+**Completed 2026-08-01.** The public site is deployed at
+<https://goldsteinmarcmd.github.io/detentioncenters/>. A dedicated local worker clone
+runs the guarded refresh daily at 3:17 AM and pushes validated aggregate updates to
+`main`, which triggers the Pages deployment.
 
 - Deploy the static build to GitHub Pages with the official Pages Actions.
 - Run `pipeline.refresh --publish` daily from a dedicated worker clone via a macOS
