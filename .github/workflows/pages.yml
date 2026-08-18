@@ -48,6 +48,8 @@ jobs:
           VITE_AIRBNB_AFFILIATE_TEMPLATE: ${{ vars.VITE_AIRBNB_AFFILIATE_TEMPLATE }}
           VITE_EXPEDIA_AFFILIATE_TEMPLATE: ${{ vars.VITE_EXPEDIA_AFFILIATE_TEMPLATE }}
           VITE_ANALYTICS_COLLECT_URL: ${{ vars.VITE_ANALYTICS_COLLECT_URL }}
+          VITE_INTAKE_ENDPOINT: ${{ vars.VITE_INTAKE_ENDPOINT }}
+          VITE_INTAKE_EMAIL: ${{ vars.VITE_INTAKE_EMAIL }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
