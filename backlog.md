@@ -93,7 +93,13 @@ paying the map-in-a-sandbox cost.
 - Data export: CSV/GeoJSON download per current filter.
 - Embeddable iframe widget for other sites.
 - Accessibility pass: full keyboard navigation, screen-reader table view as a first-class
-  alternative to the map, not a fallback.
+  alternative to the map, not a fallback. **Implemented 2026-08-19** — a Map/Table switch
+  backed by `web/src/table-view.ts`, a skip link, labelled landmarks, a roving tabindex
+  over the result list with arrow-key movement, and focus that follows a keyboard
+  selection into the detail panel and returns to the trigger on close. The table lists
+  the same filtered set as the sidebar, so the 135 ungeocoded facilities are still
+  absent from it — a table is not bound to geography and could carry them, but that is a
+  product call, not a mechanical one.
 - i18n — Spanish first.
 
 ## Pipeline

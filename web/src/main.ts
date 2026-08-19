@@ -45,6 +45,13 @@ import {
   type StayDates,
 } from './lodging';
 import { renderBondFund, type BondCampaignCollection } from './bond-fund';
+import {
+  DEFAULT_SORT,
+  renderTable,
+  type SortDir,
+  type SortKey,
+  type TableSort,
+} from './table-view';
 import { initAnalytics, track } from './analytics';
 import type { FacilityCollection, FacilityProps, UnplacedFile } from './types';
 
@@ -82,7 +89,20 @@ const el = {
   bondFundContent: document.getElementById('bond-fund-content') as HTMLElement,
   bondFundOpen: document.getElementById('bond-fund-open') as HTMLButtonElement,
   bondFundClose: document.getElementById('bond-fund-close') as HTMLButtonElement,
+  mapView: document.getElementById('map-view') as HTMLElement,
+  tableView: document.getElementById('table-view') as HTMLElement,
+  tableContent: document.getElementById('table-content') as HTMLElement,
+  viewMap: document.getElementById('view-map') as HTMLButtonElement,
+  viewTable: document.getElementById('view-table') as HTMLButtonElement,
 };
+
+/** Map or table. Both render the same filtered set — see table-view.ts. */
+let view: 'map' | 'table' = 'map';
+let tableSort: TableSort = { ...DEFAULT_SORT };
+/** The current filter result, kept so a view or sort change need not re-filter. */
+let filtered: FacilityProps[] = [];
+/** Focus returns here when the detail panel closes. */
+let lastTrigger: HTMLElement | null = null;
 
 const map = createMap(el.map);
 initAnalytics({
@@ -148,6 +168,7 @@ async function boot() {
   addFacilityLayers(map, collection as unknown as GeoJSON.FeatureCollection);
   onClusterClick(map);
   wireInteractions();
+  wireViewSwitch();
   wireDirections();
   wireLodging();
   applyFilters();
@@ -195,11 +216,13 @@ function matches(f: FacilityProps): boolean {
 
 function applyFilters() {
   const visible = [...byCode.values()].filter(matches);
+  filtered = visible;
   const mappable = new Set(
     visible.filter((f) => !unplacedCodes.has(f.code)).map((f) => f.code),
   );
   setVisible(map, mappable);
   renderResults(visible);
+  if (view === 'table') renderTableView();
 }
 
 function renderResults(list: FacilityProps[]) {
@@ -209,14 +232,19 @@ function renderResults(list: FacilityProps[]) {
     .slice(0, 300);
 
   el.results.innerHTML =
-    `<p class="count">${list.length.toLocaleString()} facilit${
+    `<p class="count" role="status">${list.length.toLocaleString()} facilit${
       list.length === 1 ? 'y' : 'ies'
     }${list.length > 300 ? ' — showing the 300 largest' : ''}</p>` +
     sorted
-      .map((f) => {
+      .map((f, i) => {
         const approx = f.approx === 1;
+        // Roving tabindex: the list is up to 300 buttons, and making every one a tab
+        // stop would bury the map and the filters behind them. Tab reaches the list,
+        // the arrow keys move within it.
         return `
-        <button class="result" data-code="${escapeHtml(f.code)}">
+        <button class="result" data-code="${escapeHtml(f.code)}" tabindex="${
+          i === 0 ? '0' : '-1'
+        }">
           <span class="swatch ${ratingClass(f.inspection.last_rating)}"></span>
           <span class="result-body">
             <span class="result-name">${escapeHtml(titleCase(f.name ?? f.code))}</span>
@@ -231,13 +259,105 @@ function renderResults(list: FacilityProps[]) {
       .join('');
 }
 
-function select(code: string, opts: { zoom?: boolean } = {}) {
+function renderTableView() {
+  el.tableContent.innerHTML = renderTable(filtered, tableSort);
+}
+
+/**
+ * Switch between the map and the table.
+ *
+ * The map keeps its DOM rather than being torn down — MapLibre re-initialising on
+ * every switch would drop the current viewport — but it is hidden from the
+ * accessibility tree while the table is showing so the two views are never announced
+ * at once.
+ */
+function setView(next: 'map' | 'table', opts: { focus?: boolean } = {}) {
+  view = next;
+  const showingTable = next === 'table';
+  el.mapView.hidden = showingTable;
+  el.tableView.hidden = !showingTable;
+  el.viewMap.setAttribute('aria-pressed', String(!showingTable));
+  el.viewTable.setAttribute('aria-pressed', String(showingTable));
+
+  if (showingTable) {
+    renderTableView();
+    if (opts.focus) el.tableView.querySelector<HTMLElement>('.th-sort')?.focus();
+  } else {
+    // Hidden containers measure as zero, so the map has to be told its size again.
+    map.resize();
+  }
+  track('view_change', { view: next });
+}
+
+function wireViewSwitch() {
+  el.viewMap.addEventListener('click', () => setView('map'));
+  el.viewTable.addEventListener('click', () => setView('table', { focus: true }));
+
+  el.tableContent.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    const sortButton = target.closest<HTMLElement>('.th-sort');
+    if (sortButton?.dataset.sort) {
+      tableSort = {
+        key: sortButton.dataset.sort as SortKey,
+        dir: (sortButton.dataset.dir as SortDir) ?? 'asc',
+      };
+      renderTableView();
+      // The header was replaced by the re-render, so focus is restored by column
+      // rather than by element.
+      el.tableContent
+        .querySelector<HTMLElement>(`.th-sort[data-sort="${tableSort.key}"]`)
+        ?.focus();
+      return;
+    }
+
+    const name = target.closest<HTMLElement>('.table-name');
+    if (name?.dataset.code) {
+      lastTrigger = name;
+      select(name.dataset.code, { focus: true });
+    }
+  });
+}
+
+/**
+ * Arrow-key movement inside the result list.
+ *
+ * Paired with the roving tabindex in `renderResults`: exactly one result is a tab
+ * stop, and Up/Down/Home/End move both focus and that tab stop.
+ */
+function wireResultKeys() {
+  el.results.addEventListener('keydown', (e) => {
+    const current = (e.target as HTMLElement).closest<HTMLElement>('.result');
+    if (!current) return;
+
+    const items = [...el.results.querySelectorAll<HTMLElement>('.result')];
+    const i = items.indexOf(current);
+    let next = -1;
+    if (e.key === 'ArrowDown') next = Math.min(i + 1, items.length - 1);
+    else if (e.key === 'ArrowUp') next = Math.max(i - 1, 0);
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = items.length - 1;
+    if (next < 0) return;
+
+    e.preventDefault();
+    current.tabIndex = -1;
+    items[next].tabIndex = 0;
+    items[next].focus();
+  });
+}
+
+function select(code: string, opts: { zoom?: boolean; focus?: boolean } = {}) {
   const f = byCode.get(code);
   if (!f) return;
   el.panel.innerHTML = renderPanel(f);
   el.panel.hidden = false;
   el.panel.scrollTop = 0;
   setSelected(map, code);
+
+  // Opened from the keyboard, focus has to follow the content: the panel is late in
+  // the DOM, so leaving focus on the list button means tabbing forward lands past it
+  // and a screen reader never reaches what it just opened.
+  if (opts.focus) el.panel.focus();
 
   const coords = coordsByCode.get(code);
   if (coords && opts.zoom) zoomToFacility(map, coords);
@@ -518,8 +638,14 @@ function wireLodging() {
 
 function closePanel() {
   lodgingRequest?.abort();
+  const wasOpen = !el.panel.hidden;
   el.panel.hidden = true;
   setSelected(map, null);
+
+  // Send focus back where it came from, so Escape does not drop the keyboard at the
+  // top of the document.
+  if (wasOpen && lastTrigger?.isConnected) lastTrigger.focus();
+  lastTrigger = null;
   const url = new URL(location.href);
   url.searchParams.delete('facility');
   history.replaceState(null, '', url);
@@ -645,8 +771,14 @@ function wireInteractions() {
 
   el.results.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLElement>('.result');
-    if (btn?.dataset.code) select(btn.dataset.code, { zoom: true });
+    if (!btn?.dataset.code) return;
+    lastTrigger = btn;
+    // Focus follows only a keyboard activation; a mouse user has not lost their place
+    // and would find the jump disorienting.
+    select(btn.dataset.code, { zoom: true, focus: e.detail === 0 });
   });
+
+  wireResultKeys();
 
   for (const control of [el.search, el.state, el.contract, el.rating, el.exactOnly]) {
     control.addEventListener('input', applyFilters);

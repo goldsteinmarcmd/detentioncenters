@@ -10,8 +10,9 @@
     />
   </head>
   <body>
+    <a class="skip-link" href="#results">Skip to the facility list</a>
     <div id="app">
-      <aside id="sidebar">
+      <aside id="sidebar" aria-label="Search, filters, and facility list">
         <header>
           <h1>US Immigration Detention</h1>
           <p class="sub" id="summary">Loading…</p>
@@ -45,21 +46,41 @@
           </div>
         </div>
 
-        <div id="results"></div>
+        <div id="results" role="region" aria-label="Facility list" tabindex="-1"></div>
       </aside>
 
-      <main id="map-wrap">
-        <div id="map"></div>
-        <div id="hover-card" hidden></div>
-        <div id="legend">
-          <span class="dot pass"></span> Pass
-          <span class="dot fail"></span> Fail
-          <span class="dot none"></span> No inspection published
-          <span class="dot hollow"></span> Approximate location
+      <main id="map-wrap" aria-label="Facility map and table">
+        <div class="view-switch" role="group" aria-label="Choose how to view the facilities">
+          <button id="view-map" type="button" aria-pressed="true">Map</button>
+          <button id="view-table" type="button" aria-pressed="false">Table</button>
         </div>
+        <div id="map-view">
+          <div
+            id="map"
+            aria-label="Map of detention facilities. The dots cannot be read by a screen reader; the Table view lists the same facilities with the same figures."
+          ></div>
+          <div id="hover-card" hidden></div>
+          <div id="legend">
+            <span class="dot pass"></span> Pass
+            <span class="dot fail"></span> Fail
+            <span class="dot none"></span> No inspection published
+            <span class="dot hollow"></span> Approximate location
+          </div>
+        </div>
+
+        <section id="table-view" hidden aria-label="Facility table">
+          <div id="table-content"></div>
+        </section>
       </main>
 
-      <section id="panel" hidden aria-live="polite"></section>
+      <section
+        id="panel"
+        hidden
+        aria-live="polite"
+        role="region"
+        aria-label="Facility detail"
+        tabindex="-1"
+      ></section>
 
       <section id="bond-fund-view" hidden aria-labelledby="bond-fund-title">
         <header class="bond-fund-header">
