@@ -230,10 +230,153 @@ body {
   color: var(--muted);
 }
 
-/* ---------- map ---------- */
+/* ---------- accessibility ---------- */
 
-#map-wrap { position: relative; }
+/*
+ * A visible, consistent focus ring everywhere. The browser default disappears against
+ * the map chrome and the dark bond-fund header, and several controls here are custom
+ * buttons that suppress it entirely.
+ */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 100;
+  padding: 9px 14px;
+  color: #fff;
+  background: var(--ink);
+  border-radius: var(--radius);
+  font-size: 13px;
+  text-decoration: none;
+  transition: top 120ms ease;
+}
+
+.skip-link:focus { top: 8px; }
+
+/* ---------- map and table views ---------- */
+
+#map-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#map-view { position: relative; flex: 1; min-height: 0; }
 #map { position: absolute; inset: 0; }
+
+.view-switch {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+}
+
+.view-switch button {
+  padding: 5px 14px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.view-switch button[aria-pressed='true'] {
+  color: var(--ink);
+  background: #eef3f8;
+  border-color: #cfdcea;
+}
+
+#table-view {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--panel);
+}
+
+.facility-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.facility-table caption {
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: left;
+}
+
+.facility-table th,
+.facility-table td {
+  padding: 7px 12px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.facility-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0;
+  background: #fafaf8;
+  border-bottom: 1px solid var(--line);
+}
+
+.facility-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.th-sort {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.th-sort:hover { color: var(--ink); background: #f2f6fa; }
+
+.th-arrow { font-size: 11px; }
+
+.facility-table tbody th { font-weight: 500; }
+
+.table-name {
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.table-name:hover { text-decoration: underline; }
+
+.approx-tag { font-size: 11px; color: var(--absent); }
+
+.rating-cell.pass { color: var(--pass); }
+.rating-cell.fail { color: var(--fail); }
+.rating-cell.none { color: var(--muted); }
 
 #hover-card {
   position: absolute;

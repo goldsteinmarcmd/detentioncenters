@@ -93,7 +93,13 @@ paying the map-in-a-sandbox cost.
 - Data export: CSV/GeoJSON download per current filter.
 - Embeddable iframe widget for other sites.
 - Accessibility pass: full keyboard navigation, screen-reader table view as a first-class
-  alternative to the map, not a fallback.
+  alternative to the map, not a fallback. **Implemented 2026-08-19** — a Map/Table switch
+  backed by `web/src/table-view.ts`, a skip link, labelled landmarks, a roving tabindex
+  over the result list with arrow-key movement, and focus that follows a keyboard
+  selection into the detail panel and returns to the trigger on close. The table lists
+  the same filtered set as the sidebar, so the 135 ungeocoded facilities are still
+  absent from it — a table is not bound to geography and could carry them, but that is a
+  product call, not a mechanical one.
 - i18n — Spanish first.
 
 ## Pipeline
@@ -101,6 +107,13 @@ paying the map-in-a-sandbox cost.
 - Diffing between releases: "what changed since last ICE release" — new facilities,
   closures, population swings, inspection-rating changes. Probably the most compelling
   recurring content the project could produce, and it feeds the Reddit app directly.
+  **Implemented 2026-08-19** as `pipeline/diff.py` (`python -m pipeline.diff`), covered
+  by `tests/test_diff.py`. It reads its history from Git — `refresh --publish` commits
+  `facilities.geojson` on every release, so each of those commits is already a dated
+  snapshot and the archiving item below is not a prerequisite. Absences are reported
+  separately from movement: a number that stops being published is "no longer
+  reported", never a fall to zero. Not yet wired into anything that publishes the
+  result — that is the open half.
 - Alerting on upstream schema changes rather than discovering them via a failed build.
 - Archive every raw release so historical rebuilds stay possible if ICE removes files.
 - Expand the operator crosswalk past the top-50 facilities.
