@@ -107,6 +107,13 @@ paying the map-in-a-sandbox cost.
 - Diffing between releases: "what changed since last ICE release" — new facilities,
   closures, population swings, inspection-rating changes. Probably the most compelling
   recurring content the project could produce, and it feeds the Reddit app directly.
+  **Implemented 2026-08-19** as `pipeline/diff.py` (`python -m pipeline.diff`), covered
+  by `tests/test_diff.py`. It reads its history from Git — `refresh --publish` commits
+  `facilities.geojson` on every release, so each of those commits is already a dated
+  snapshot and the archiving item below is not a prerequisite. Absences are reported
+  separately from movement: a number that stops being published is "no longer
+  reported", never a fall to zero. Not yet wired into anything that publishes the
+  result — that is the open half.
 - Alerting on upstream schema changes rather than discovering them via a failed build.
 - Archive every raw release so historical rebuilds stay possible if ICE removes files.
 - Expand the operator crosswalk past the top-50 facilities.
